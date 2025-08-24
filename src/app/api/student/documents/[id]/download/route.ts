@@ -6,9 +6,10 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -31,7 +32,7 @@ export async function GET(
 
     const document = await prisma.document.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: student.id
       }
     });
@@ -47,7 +48,7 @@ export async function GET(
       const filePath = path.join(process.cwd(), document.path);
       const fileBuffer = await readFile(filePath);
 
-      const response = new NextResponse(fileBuffer);
+      const response = new NextResponse(fileBuffer as BodyInit);
       response.headers.set('Content-Type', document.mimeType);
       response.headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
       response.headers.set('Content-Length', document.size.toString());

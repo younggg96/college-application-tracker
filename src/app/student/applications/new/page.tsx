@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -29,7 +29,7 @@ interface University {
   deadlines: string;
 }
 
-export default function NewApplicationPage() {
+function NewApplicationContent() {
   const [user, setUser] = useState<User | null>(null);
   const [university, setUniversity] = useState<University | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,7 +171,7 @@ export default function NewApplicationPage() {
 
   if (!university) {
     return (
-      <DashboardLayout user={user}>
+      <DashboardLayout user={user as User}>
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             University Information Not Found
@@ -185,7 +185,7 @@ export default function NewApplicationPage() {
   }
 
   return (
-    <DashboardLayout user={user}>
+    <DashboardLayout user={user as User}>
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
@@ -328,5 +328,13 @@ export default function NewApplicationPage() {
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function NewApplicationPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewApplicationContent />
+    </Suspense>
   );
 }

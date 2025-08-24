@@ -9,6 +9,7 @@ interface Application {
   deadline?: string;
   submittedDate?: string;
   decisionDate?: string;
+  decisionType?: string;
   university: {
     name: string;
   };

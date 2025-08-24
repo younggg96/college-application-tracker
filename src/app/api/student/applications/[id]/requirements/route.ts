@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -30,7 +31,7 @@ export async function POST(
     // Verify application belongs to student
     const application = await prisma.application.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: student.id
       }
     });
@@ -46,7 +47,7 @@ export async function POST(
 
     const requirement = await prisma.applicationRequirement.create({
       data: {
-        applicationId: params.id,
+        applicationId: id,
         requirementType,
         deadline: deadline ? new Date(deadline) : null,
         notes,

@@ -252,7 +252,7 @@ export default function ParentDashboard() {
   const { acceptedApplications, totalTuition } = calculateTotalCosts();
 
   return (
-    <DashboardLayout user={user}>
+    <DashboardLayout user={user as User}>
       <div className="space-y-6">
         {/* Welcome Section */}
         <div className="flex items-center justify-between">

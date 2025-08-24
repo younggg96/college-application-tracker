@@ -63,7 +63,21 @@ export async function getUserFromRequest(request: NextRequest): Promise<{
       }
     });
 
-    return user;
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      student: user.student ? {
+        id: user.student.id,
+        name: user.student.name
+      } : undefined,
+      parent: user.parent ? {
+        id: user.parent.id,
+        name: user.parent.name
+      } : undefined
+    };
   } catch {
     return null;
   }

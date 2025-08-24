@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -75,7 +75,7 @@ interface Application {
   }>;
 }
 
-export default function ParentApplicationsPage() {
+function ParentApplicationsContent() {
   const [user, setUser] = useState<User | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -274,7 +274,7 @@ export default function ParentApplicationsPage() {
   }
 
   return (
-    <DashboardLayout user={user}>
+    <DashboardLayout user={user as User}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-4">
@@ -552,5 +552,13 @@ export default function ParentApplicationsPage() {
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function ParentApplicationsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ParentApplicationsContent />
+    </Suspense>
   );
 }

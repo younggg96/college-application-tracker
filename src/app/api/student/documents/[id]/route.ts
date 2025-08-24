@@ -6,9 +6,10 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -31,7 +32,7 @@ export async function GET(
 
     const document = await prisma.document.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: student.id
       },
       include: {
@@ -63,9 +64,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -91,7 +93,7 @@ export async function PUT(
     // 验证文档是否属于该学生
     const existingDocument = await prisma.document.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: student.id
       }
     });
@@ -140,7 +142,7 @@ export async function PUT(
     }
 
     const document = await prisma.document.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         documentType,
         applicationId: applicationId || null,
@@ -168,9 +170,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -193,7 +196,7 @@ export async function DELETE(
 
     const document = await prisma.document.findFirst({
       where: {
-        id: params.id,
+        id,
         studentId: student.id
       }
     });
@@ -216,7 +219,7 @@ export async function DELETE(
 
     // 删除数据库记录
     await prisma.document.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: 'Document deleted successfully' });

@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -32,7 +33,7 @@ export async function PUT(
     // Verify requirement belongs to student's application
     const requirement = await prisma.applicationRequirement.findFirst({
       where: {
-        id: params.id,
+        id,
         application: {
           studentId: student.id
         }
@@ -47,7 +48,7 @@ export async function PUT(
     }
 
     const updatedRequirement = await prisma.applicationRequirement.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         deadline: deadline ? new Date(deadline) : undefined,
@@ -67,9 +68,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'STUDENT') {
@@ -93,7 +95,7 @@ export async function DELETE(
     // Verify requirement belongs to student's application
     const requirement = await prisma.applicationRequirement.findFirst({
       where: {
-        id: params.id,
+        id,
         application: {
           studentId: student.id
         }
@@ -108,7 +110,7 @@ export async function DELETE(
     }
 
     await prisma.applicationRequirement.delete({
-      where: { id: params.id }
+      where: { id }
     });
 
     return NextResponse.json({ message: 'Requirement deleted successfully' });

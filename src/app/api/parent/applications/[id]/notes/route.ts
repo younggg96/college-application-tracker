@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = await getUserFromRequest(request);
 
     if (!user || user.role !== 'PARENT') {
@@ -30,7 +31,7 @@ export async function POST(
     // Verify the application belongs to a student linked to this parent
     const application = await prisma.application.findFirst({
       where: {
-        id: params.id,
+        id,
         student: {
           parentLinks: {
             some: {
@@ -60,7 +61,7 @@ export async function POST(
     const note = await prisma.parentNote.create({
       data: {
         parentId: parent.id,
-        applicationId: params.id,
+        applicationId: id,
         content: content.trim()
       },
       include: {
