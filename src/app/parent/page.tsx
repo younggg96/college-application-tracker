@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -11,7 +11,6 @@ import {
   Users, 
   FileText, 
   TrendingUp, 
-  Calendar, 
   Plus,
   AlertCircle,
   CheckCircle,
@@ -75,11 +74,7 @@ export default function ParentDashboard() {
   const [addingStudent, setAddingStudent] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [userResponse, studentsResponse] = await Promise.all([
         fetch('/api/auth/me'),
@@ -103,7 +98,11 @@ export default function ParentDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAddStudent = async () => {
     if (!studentEmail.trim()) {
