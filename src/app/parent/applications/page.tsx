@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -85,11 +85,7 @@ export default function ParentApplicationsPage() {
   const searchParams = useSearchParams();
   const studentId = searchParams.get('studentId');
 
-  useEffect(() => {
-    fetchData();
-  }, [studentId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [userResponse, applicationsResponse] = await Promise.all([
         fetch('/api/auth/me'),
@@ -113,7 +109,11 @@ export default function ParentApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [studentId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleAddNote = async (applicationId: string) => {
     const content = newNotes[applicationId]?.trim();
@@ -303,7 +303,7 @@ export default function ParentApplicationsPage() {
                 No application records
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Your linked students haven't added any applications yet
+                Your linked students haven&apos;t added any applications yet
               </p>
             </CardContent>
           </Card>
