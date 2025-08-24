@@ -1,0 +1,237 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      UserRole @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  student Student?
+  parent  Parent?
+
+  @@map("users")
+}
+
+model Student {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  name            String
+  graduationYear  Int?
+  gpa             Float?
+  satScore        Int?
+  actScore        Int?
+  targetCountries String? // JSON string for array of countries
+  intendedMajors  String? // JSON string for array of majors
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+  parentLinks  ParentStudent[]
+  documents    Document[]
+
+  @@map("students")
+}
+
+model Parent {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  studentLinks ParentStudent[]
+  notes        ParentNote[]
+
+  @@map("parents")
+}
+
+model ParentStudent {
+  id        String @id @default(cuid())
+  parentId  String
+  studentId String
+
+  // Relations
+  parent  Parent  @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([parentId, studentId])
+  @@map("parent_students")
+}
+
+model University {
+  id                String  @id @default(cuid())
+  name              String
+  country           String
+  state             String?
+  city              String
+  usNewsRanking     Int?
+  acceptanceRate    Float?
+  applicationSystem String // 'Common App', 'Coalition', 'Direct'
+  tuitionInState    Float?
+  tuitionOutState   Float?
+  applicationFee    Float?
+  deadlines         String // JSON string for different deadline types
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+
+  @@map("universities")
+}
+
+model Application {
+  id              String            @id @default(cuid())
+  studentId       String
+  universityId    String
+  applicationType ApplicationType
+  deadline        DateTime?
+  status          ApplicationStatus @default(NOT_STARTED)
+  submittedDate   DateTime?
+  decisionDate    DateTime?
+  decisionType    DecisionType?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  student      Student                   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  university   University                @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  requirements ApplicationRequirement[]
+  parentNotes  ParentNote[]
+  documents    Document[]
+
+  @@unique([studentId, universityId, applicationType])
+  @@map("applications")
+}
+
+model ApplicationRequirement {
+  id              String            @id @default(cuid())
+  applicationId   String
+  requirementType RequirementType
+  status          RequirementStatus @default(NOT_STARTED)
+  deadline        DateTime?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Relations
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  documents   Document[]
+
+  @@map("application_requirements")
+}
+
+model Document {
+  id                    String    @id @default(cuid())
+  filename              String
+  originalName          String
+  mimeType              String
+  size                  Int
+  path                  String
+  documentType          DocumentType
+  applicationId         String?
+  requirementId         String?
+  studentId             String
+  uploadedAt            DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relations
+  student     Student                  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  application Application?             @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  requirement ApplicationRequirement? @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model ParentNote {
+  id            String   @id @default(cuid())
+  parentId      String
+  applicationId String
+  content       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  parent      Parent      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("parent_notes")
+}
+
+// Enums
+enum UserRole {
+  STUDENT
+  PARENT
+  TEACHER
+  ADMIN
+}
+
+enum ApplicationType {
+  EARLY_DECISION
+  EARLY_ACTION
+  REGULAR_DECISION
+  ROLLING_ADMISSION
+}
+
+enum ApplicationStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  UNDER_REVIEW
+  DECISION_RECEIVED
+}
+
+enum DecisionType {
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+  DEFERRED
+}
+
+enum RequirementType {
+  ESSAY
+  RECOMMENDATION_LETTER
+  TRANSCRIPT
+  TEST_SCORES
+  PORTFOLIO
+  INTERVIEW
+  SUPPLEMENTAL_MATERIALS
+}
+
+enum RequirementStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SUBMITTED
+}
+
+enum DocumentType {
+  ESSAY
+  PERSONAL_STATEMENT
+  TRANSCRIPT
+  RECOMMENDATION_LETTER
+  TEST_SCORES
+  PORTFOLIO
+  RESUME
+  FINANCIAL_AID
+  SUPPLEMENTAL_ESSAY
+  OTHER
+}
