@@ -109,7 +109,7 @@ export default function ParentApplicationsPage() {
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, router]);
 
   useEffect(() => {
     fetchData();

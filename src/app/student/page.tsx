@@ -180,7 +180,7 @@ export default function StudentDashboard() {
             Welcome back, {user?.student?.name}!
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Here's your application overview and important reminders
+            Here&apos;s your application overview and important reminders
           </p>
         </div>
 
@@ -298,7 +298,7 @@ export default function StudentDashboard() {
               {applications.length === 0 ? (
                 <div className="text-center py-4">
                   <p className="text-gray-500 dark:text-gray-400 mb-4">
-                    You haven't added any applications yet
+                    You haven&apos;t added any applications yet
                   </p>
                   <Button onClick={() => router.push('/student/universities')}>
                     Start searching universities

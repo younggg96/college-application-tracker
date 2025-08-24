@@ -262,7 +262,7 @@ export default function ParentDashboard() {
               Welcome back, {user?.parent?.name}!
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Monitor your child's college application progress
+              Monitor your child&apos;s college application progress
             </p>
           </div>
           <Button onClick={() => setShowAddStudent(true)}>
@@ -277,7 +277,7 @@ export default function ParentDashboard() {
             <CardHeader>
               <CardTitle>Link Student Account</CardTitle>
               <CardDescription>
-                Enter your child's email address to link their applications
+                Enter your child&apos;s email address to link their applications
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -335,7 +335,7 @@ export default function ParentDashboard() {
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.total}</div>
                   <p className="text-xs text-muted-foreground">
-                    All children's applications
+                    All children&apos;s applications
                   </p>
                 </CardContent>
               </Card>
